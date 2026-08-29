@@ -14,11 +14,10 @@
 
 1. 打开 Chrome 或 Edge，进入扩展管理页：
    - Chrome：`chrome://extensions`
-   - Edge：`edge://extensions`
-2. 打开右上角/左侧的 **开发者模式**；
-3. 点击 **加载已解压的扩展程序**；
-4. 选择本目录：`mania-preview-browser-extension`；
-5. 安装后，工具栏会出现插件图标。
+2. 点击 **加载已解压的扩展程序**；
+3. 选择本目录：`mania-preview-browser-extension`；
+4. 安装后，工具栏会出现插件图标。
+（若在该步骤出现问题，尝试打开 **开发者模式**再进行尝试）
 
 ## 使用
 
