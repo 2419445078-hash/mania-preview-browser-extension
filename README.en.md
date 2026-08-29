@@ -27,9 +27,9 @@ The floating window:
 1. Open the extensions page:
    - Chrome: `chrome://extensions`
    - Edge: `edge://extensions`
-2. Enable **Developer mode**.
-3. Click **Load unpacked**.
-4. Select this folder: `mania-preview-browser-extension`.
+2. Click **Load unpacked**.
+3. Select this folder: `mania-preview-browser-extension`.
+（If you encounter any problems, please enable the developer mode.）
 
 ### Edge (helper script)
 
@@ -61,8 +61,6 @@ A floating preview window will appear on the page.
 - The extension only works on **osu.ppy.sh** beatmap pages;
 - It downloads beatmap files from `https://osu.ppy.sh/osu/{id}`, so osu! website access is required;
 - It does **not** read the osu! game client and does **not** require tosu;
-- Only **mania** difficulties are supported;
-- If you update the extension code, click **Reload** in `chrome://extensions` or `edge://extensions`.
 
 ## Files
 
