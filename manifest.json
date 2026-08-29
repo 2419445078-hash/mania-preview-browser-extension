@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "osu!mania 网页谱面实时预览",
+  "version": "0.2.0",
+  "description": "在 osu.ppy.sh 谱面页选取 mania 难度后，点击插件图标即可在网页内悬浮显示该难度谱面的实时预览。",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://osu.ppy.sh/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://osu.ppy.sh/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "osu!mania 网页谱面预览"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "panel.html"
+      ],
+      "matches": [
+        "https://osu.ppy.sh/*"
+      ]
+    }
+  ]
+}

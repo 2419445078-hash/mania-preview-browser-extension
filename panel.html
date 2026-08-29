@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="dark">
+<title>osu!mania 网页谱面预览</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --panel: #111119;
+    --fg: #e8e8f0;
+    --dim: #9a9ab0;
+    --line: #26263a;
+    --btn: #1c1c28;
+    --ok: #7ee787;
+    --warn: #f0b72f;
+    --err: #ff7b72;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    width: 290px;
+    font: 12px/1.4 system-ui, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  #app {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+  }
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .head-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: move;
+    user-select: none;
+  }
+  #metaTitle {
+    flex: 1;
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #btnClose {
+    background: transparent;
+    border: none;
+    color: var(--dim);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+  #btnClose:hover { color: var(--err); }
+  #metaSub {
+    color: var(--dim);
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .status {
+    align-self: flex-start;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--dim);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .status.ok { color: var(--ok); border-color: rgba(126,231,135,.4); background: rgba(46,160,67,.15); }
+  .status.warn { color: var(--warn); border-color: rgba(240,183,47,.4); background: rgba(240,183,47,.12); }
+  .status.err { color: var(--err); border-color: rgba(255,123,114,.4); background: rgba(248,81,73,.12); }
+  canvas {
+    display: block;
+    background: #000;
+    outline: 1px solid #2a2a3a;
+  }
+  .controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    background: var(--btn);
+    color: var(--fg);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 4px 9px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:hover { background: #26263a; }
+  button:disabled { opacity: .4; cursor: default; }
+  select {
+    background: var(--btn);
+    color: var(--fg);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 3px 5px;
+    font-size: 11px;
+    font-family: inherit;
+  }
+    .speed-ctl {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--btn);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px;
+    }
+    .speed-ctl button {
+      border: none;
+      background: transparent;
+      padding: 2px 6px;
+      font-size: 12px;
+      line-height: 1;
+      min-width: 0;
+    }
+    .speed-ctl button:hover:not(:disabled) { background: #26263a; color: #fff; }
+    .speed-ctl button:disabled { opacity: .4; }
+    .speed-ctl #speedValue {
+      min-width: 34px;
+      text-align: center;
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 12px;
+      color: var(--fg);
+    }
+  .timeline {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  #timeLabel {
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 11px;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+  input[type=range] {
+    flex: 1;
+    min-width: 0;
+    height: 14px;
+    accent-color: #ffffff;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="head-row" id="dragHandle" title="拖动此区域移动预览窗">
+      <div id="metaTitle">等待谱面…</div>
+      <button id="btnClose" title="关闭悬浮预览窗">✕</button>
+    </div>
+    <div id="metaSub">在 osu.ppy.sh 打开谱面并点击 mania 难度</div>
+    <span id="status" class="status">未检测到难度</span>
+  </header>
+  <canvas id="cv" width="250" height="500"></canvas>
+  <div class="controls">
+    <button id="btnPlay" title="播放 / 暂停" disabled>▶</button>
+    <span class="lbl">速度</span>
+    <span class="speed-ctl" title="下落速度：1.0 ~ 10.0，步进 0.5。点击 ↑ / ↓ 调节">
+      <button id="btnSpeedUp" title="加速（+0.5）">↑</button>
+      <span id="speedValue">5.0</span>
+      <button id="btnSpeedDown" title="减速（-0.5）">↓</button>
+    </span>
+    <button id="btnRefresh" title="重新获取当前网页选中的难度">刷新</button>
+  </div>
+  <div class="timeline">
+    <span id="timeLabel">00:00 / 00:00</span>
+    <input type="range" id="slider" min="0" max="1" step="1" value="0" disabled>
+  </div>
+</div>
+<script src="beatmap-parser.js"></script>
+<script src="preview.js"></script>
+<script src="panel.js"></script>
+</body>
+</html>
